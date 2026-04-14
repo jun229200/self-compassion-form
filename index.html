@@ -1,535 +1,551 @@
-<!DOCTYPE html>
-<html lang="ja">
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>心理尺度 自動集計フォーム</title>
-  <style>
-    :root {
-      --bg: #f6f7fb;
-      --card: #ffffff;
-      --text: #1f2937;
-      --muted: #6b7280;
-      --line: #dbe2ea;
-      --accent: #2563eb;
-      --accent-soft: #eff6ff;
-      --ok: #047857;
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.7;
-    }
-
-    .wrap {
-      max-width: 920px;
-      margin: 0 auto;
-      padding: 32px 16px 80px;
-    }
-
-    .hero, .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
-    }
-
-    .hero {
-      padding: 28px;
-      margin-bottom: 20px;
-    }
-
-    h1 {
-      margin: 0 0 10px;
-      font-size: 30px;
-      line-height: 1.3;
-    }
-
-    h2 {
-      margin: 0 0 10px;
-      font-size: 22px;
-    }
-
-    .muted {
-      color: var(--muted);
-      font-size: 14px;
-    }
-
-    .notice {
-      margin-top: 14px;
-      padding: 12px 14px;
-      border-radius: 12px;
-      background: #fff8e6;
-      border: 1px solid #f5df9b;
-      font-size: 14px;
-    }
-
-    form {
-      display: grid;
-      gap: 16px;
-    }
-
-    .card {
-      padding: 20px;
-    }
-
-    .question-head {
-      display: flex;
-      gap: 10px;
-      align-items: flex-start;
-      margin-bottom: 14px;
-    }
-
-    .q-number {
-      min-width: 32px;
-      height: 32px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 999px;
-      background: var(--accent-soft);
-      color: var(--accent);
-      font-weight: 700;
-      font-size: 14px;
-    }
-
-    .q-text {
-      font-size: 17px;
-      font-weight: 600;
-    }
-
-    .scale-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 10px;
-    }
-
-    .choice {
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 10px 8px;
-      text-align: center;
-      cursor: pointer;
-      transition: 0.15s ease;
-      background: #fff;
-    }
-
-    .choice:hover {
-      border-color: var(--accent);
-      background: var(--accent-soft);
-    }
-
-    .choice input {
-      display: none;
-    }
-
-    .choice.selected {
-      border-color: var(--accent);
-      background: var(--accent-soft);
-      box-shadow: inset 0 0 0 1px var(--accent);
-    }
-
-    .choice-score {
-      display: block;
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 2px;
-    }
-
-    .choice-label {
-      display: block;
-      font-size: 12px;
-      color: var(--muted);
-      line-height: 1.4;
-    }
-
-    .actions {
-      position: sticky;
-      bottom: 16px;
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      margin-top: 8px;
-    }
-
-    button {
-      border: none;
-      border-radius: 999px;
-      padding: 14px 22px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: 0.15s ease;
-    }
-
-    .primary {
-      background: var(--accent);
-      color: white;
-    }
-
-    .secondary {
-      background: white;
-      color: var(--text);
-      border: 1px solid var(--line);
-    }
-
-    button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.12);
-    }
-
-    .result {
-      margin-top: 22px;
-      padding: 24px;
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
-      display: none;
-    }
-
-    .result-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 14px;
-      margin-top: 16px;
-    }
-
-    .result-box {
-      padding: 16px;
-      border-radius: 14px;
-      border: 1px solid var(--line);
-      background: #fbfcff;
-    }
-
-    .result-label {
-      font-size: 13px;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
-
-    .result-value {
-      font-size: 26px;
-      font-weight: 800;
-      line-height: 1.2;
-    }
-
-    .subscale-list {
-      margin-top: 18px;
-      display: grid;
-      gap: 10px;
-    }
-
-    .subscale-item {
-      padding: 14px 16px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background: white;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .comment {
-      margin-top: 18px;
-      padding: 16px;
-      border-radius: 14px;
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-    }
-
-    .footer-note {
-      margin-top: 14px;
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    @media (max-width: 700px) {
-      h1 { font-size: 24px; }
-      .scale-grid { grid-template-columns: 1fr; }
-      .actions { flex-direction: column; }
-      button { width: 100%; }
-    }
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2685.4">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <section class="hero">
-      <h1 id="formTitle">心理尺度 自動集計フォーム</h1>
-      <p id="formDescription">
-        各項目について、現在の自分にもっとも近いものを選んでください。
-      </p>
-      <div class="notice" id="scaleInstruction"></div>
-      <p class="muted">
-        回答後に「結果を表示」を押すと、その場で自動集計されます。
-      </p>
-    </section>
-
-    <form id="scaleForm"></form>
-
-    <div class="actions">
-      <button type="button" class="primary" id="submitBtn">結果を表示</button>
-      <button type="button" class="secondary" id="resetBtn">リセット</button>
-    </div>
-
-    <section class="result" id="resultSection">
-      <h2>集計結果</h2>
-      <div class="result-grid">
-        <div class="result-box">
-          <div class="result-label">合計点</div>
-          <div class="result-value" id="totalScore">-</div>
-        </div>
-        <div class="result-box">
-          <div class="result-label">平均点</div>
-          <div class="result-value" id="averageScore">-</div>
-        </div>
-      </div>
-
-      <div class="subscale-list" id="subscaleList"></div>
-      <div class="comment" id="resultComment"></div>
-      <div class="footer-note" id="footerNote"></div>
-    </section>
-  </div>
-
-  <script>
-    // =============================
-    // ここを差し替えれば、別の心理尺度にも流用できます
-    // =============================
-    const scaleConfig = {
-      title: "心理尺度 自動集計フォーム",
-      description: "各項目を注意深く読み、あなたがどの程度そのように行動するかを選んでください。",
-      instruction: "回答する前に、それぞれの項目を注意深く読んでください。あなたが、各項目について、どの程度行動するか、以下の尺度に従って数字を選んでください。",
-      footerNote: "※この結果は自己理解の参考情報としてご利用ください。必要に応じて、専門家への相談もご検討ください。",
-      choices: [
-        { value: 1, label: "ほとんど全く
-そうしない" },
-        { value: 2, label: "そうしない" },
-        { value: 3, label: "どちらとも
-いえない" },
-        { value: 4, label: "そうする" },
-        { value: 5, label: "ほとんどいつも
-そうする" }
-      ],
-      items: [
-        { id: "q1", text: "自分自身の欠点や不十分なところについて、不満に思っているし、批判的である。", subscale: "自己批判", reverse: true },
-        { id: "q2", text: "気分が落ち込んだときには、間違ったことすべてについて、くよくよと心配し、こだわる傾向にある。", subscale: "過剰同一化", reverse: true },
-        { id: "q3", text: "自分にとって重要なことを失敗した時、無力感で頭がいっぱいになる。", subscale: "過剰同一化", reverse: true },
-        { id: "q4", text: "何かで苦しい想いをしたときは、感情を適度なバランスに保つようにする。", subscale: "マインドフルネス" },
-        { id: "q5", text: "自分自身にどこかに不十分なところがあると感じると、多くの人も不十分であるという気持ちを共有していることを思い出すようにする。", subscale: "共通の人間性" },
-        { id: "q6", text: "自分のパーソナリティの好きでないところについては、やさしくなれないし、いらだちを感じる。", subscale: "自己批判", reverse: true },
-        { id: "q7", text: "苦労を経験しているとき、必要とする程度に自分自身をいたわり、やさしくする。", subscale: "自分への優しさ" },
-        { id: "q8", text: "気分が落ち込んだとき、多くの人がおそらく自分より幸せであるという気持ちになりがちである。", subscale: "孤独感", reverse: true },
-        { id: "q9", text: "何か苦痛を感じることが起こったとき、その状況についてバランスのとれた見方をするようにする。", subscale: "マインドフルネス" },
-        { id: "q10", text: "自分の失敗は、人間のありようの1つであると考えるようにしている。", subscale: "共通の人間性" },
-        { id: "q11", text: "自分にとって大切な何かに失敗したとき、自分の失敗の中でひとりぼっちでいるように感じる傾向がある。", subscale: "孤独感", reverse: true },
-        { id: "q12", text: "自分のパーソナリティの好きではないところについては理解し、やさしい目で見るようにしている。", subscale: "自分への優しさ" }
-      ],
-      interpretation: [
-        {
-          min: 12,
-          max: 24,
-          label: "低め",
-          comment: "判定コメントは未設定です。あとで集計方法に合わせて差し替えます。"
-        },
-        {
-          min: 25,
-          max: 42,
-          label: "中程度",
-          comment: "判定コメントは未設定です。あとで集計方法に合わせて差し替えます。"
-        },
-        {
-          min: 43,
-          max: 60,
-          label: "高め",
-          comment: "判定コメントは未設定です。あとで集計方法に合わせて差し替えます。"
-        }
-      ]
-    };
-
-    const formEl = document.getElementById("scaleForm");
-    const resultSection = document.getElementById("resultSection");
-    const submitBtn = document.getElementById("submitBtn");
-    const resetBtn = document.getElementById("resetBtn");
-
-    document.getElementById("formTitle").textContent = scaleConfig.title;
-    document.getElementById("formDescription").textContent = scaleConfig.description;
-    document.getElementById("scaleInstruction").textContent = scaleConfig.instruction;
-    document.getElementById("footerNote").textContent = scaleConfig.footerNote;
-
-    function renderForm() {
-      formEl.innerHTML = "";
-
-      scaleConfig.items.forEach((item, index) => {
-        const card = document.createElement("section");
-        card.className = "card";
-
-        const head = document.createElement("div");
-        head.className = "question-head";
-        head.innerHTML = `
-          <div class="q-number">${index + 1}</div>
-          <div>
-            <div class="q-text">${item.text}</div>
-            <div class="muted">${item.subscale ? `下位尺度：${item.subscale}` : ""}${item.reverse ? "　/　逆転項目" : ""}</div>
-          </div>
-        `;
-
-        const grid = document.createElement("div");
-        grid.className = "scale-grid";
-
-        scaleConfig.choices.forEach(choice => {
-          const label = document.createElement("label");
-          label.className = "choice";
-          label.innerHTML = `
-            <input type="radio" name="${item.id}" value="${choice.value}">
-            <span class="choice-score">${choice.value}</span>
-            <span class="choice-label">${choice.label.replace(/\n/g, "<br>")}</span>
-          `;
-
-          const input = label.querySelector("input");
-          input.addEventListener("change", () => {
-            document.querySelectorAll(`input[name="${item.id}"]`).forEach(r => {
-              r.closest(".choice").classList.remove("selected");
-            });
-            label.classList.add("selected");
-          });
-
-          grid.appendChild(label);
-        });
-
-        card.appendChild(head);
-        card.appendChild(grid);
-        formEl.appendChild(card);
-      });
-    }
-
-    function getMaxChoiceValue() {
-      return Math.max(...scaleConfig.choices.map(c => c.value));
-    }
-
-    function collectAnswers() {
-      const answers = {};
-      let missing = [];
-
-      scaleConfig.items.forEach((item, index) => {
-        const checked = document.querySelector(`input[name="${item.id}"]:checked`);
-        if (!checked) {
-          missing.push(index + 1);
-        } else {
-          answers[item.id] = Number(checked.value);
-        }
-      });
-
-      return { answers, missing };
-    }
-
-    function scoreAnswers(rawAnswers) {
-      const max = getMaxChoiceValue();
-      const scoredItems = [];
-      const subscaleScores = {};
-      let total = 0;
-
-      scaleConfig.items.forEach(item => {
-        const raw = rawAnswers[item.id];
-        const scored = item.reverse ? (max + 1 - raw) : raw;
-
-        scoredItems.push({
-          id: item.id,
-          text: item.text,
-          raw,
-          scored,
-          subscale: item.subscale || "その他"
-        });
-
-        total += scored;
-        const key = item.subscale || "その他";
-        if (!subscaleScores[key]) {
-          subscaleScores[key] = { total: 0, count: 0 };
-        }
-        subscaleScores[key].total += scored;
-        subscaleScores[key].count += 1;
-      });
-
-      return {
-        total,
-        average: total / scaleConfig.items.length,
-        scoredItems,
-        subscaleScores
-      };
-    }
-
-    function getInterpretation(total) {
-      return scaleConfig.interpretation.find(rule => total >= rule.min && total <= rule.max)
-        || { label: "判定なし", comment: "判定基準が設定されていません。" };
-    }
-
-    function renderResult(result) {
-      document.getElementById("totalScore").textContent = `${result.total}点`;
-      document.getElementById("averageScore").textContent = result.average.toFixed(2);
-
-      const subscaleList = document.getElementById("subscaleList");
-      subscaleList.innerHTML = "";
-
-      const descriptions = {
-        "自分への優しさ": "自分の良い所やできている部分に注目し、やさしい言葉をかける。",
-        "自己批判": "自分の駄目な所に注目し、批判的な言葉をかける。",
-        "マインドフルネス": "自分の感情を偏りなく受け入れ、バランスのとれた見方をする。",
-        "過剰同一化": "否定的な感情に支配され、頭の中が混乱してしまう。",
-        "共通の人間性": "他の人も自分と同じような困難を経験し、そこから立ち直っていることを認識する。",
-        "孤独感": "自分だけ困難に直面して苦しみ、孤立していると感じる。"
-      };
-
-      Object.entries(result.subscaleScores).forEach(([name, value]) => {
-        const item = document.createElement("div");
-        item.className = "subscale-item";
-        item.innerHTML = `
-          <div>
-            <strong>${name}</strong><br>
-            <span class="muted">${descriptions[name] || ""}</span>
-          </div>
-          <div style="text-align:right;">
-            <strong>${value.total}点</strong>
-          </div>
-        `;
-        subscaleList.appendChild(item);
-      });
-
-      document.getElementById("resultComment").innerHTML = `
-        <strong>セルフ・コンパッション：</strong>${result.total}点<br>
-        失敗や傷ついた経験の後に、自分の感情をバランスよく受け入れ、その経験が他の人たちとも共通していることを認識し、自分に優しい気持ちを向ける傾向を示します。
-      `;
-
-      resultSection.style.display = "block";
-      resultSection.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-
-    submitBtn.addEventListener("click", () => {
-      const { answers, missing } = collectAnswers();
-
-      if (missing.length > 0) {
-        alert(`未回答の項目があります。\n未回答: ${missing.join(", ")}番`);
-        return;
-      }
-
-      const result = scoreAnswers(answers);
-      renderResult(result);
-    });
-
-    resetBtn.addEventListener("click", () => {
-      document.querySelectorAll('input[type="radio"]').forEach(input => {
-        input.checked = false;
-      });
-      document.querySelectorAll('.choice').forEach(el => el.classList.remove('selected'));
-      resultSection.style.display = 'none';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-
-    renderForm();
-  </script>
+<p class="p1">&lt;!DOCTYPE html&gt;</p>
+<p class="p1">&lt;html lang="ja"&gt;</p>
+<p class="p1">&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta charset="UTF-8" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;meta name="viewport" content="width=device-width, initial-scale=1.0" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;title&gt;心理尺度 自動集計フォーム&lt;/title&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>:root {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--bg: #f6f7fb;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--card: #ffffff;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--text: #1f2937;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--muted: #6b7280;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--line: #dbe2ea;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--accent: #2563eb;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--accent-soft: #eff6ff;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>--ok: #047857;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>* { box-sizing: border-box; }</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>body {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin: 0;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: var(--bg);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: var(--text);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>line-height: 1.7;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.wrap {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>max-width: 920px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin: 0 auto;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 32px 16px 80px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.hero, .card {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: var(--card);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid var(--line);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 18px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.hero {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 28px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin-bottom: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>h1 {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin: 0 0 10px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 30px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>line-height: 1.3;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>h2 {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin: 0 0 10px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 22px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.muted {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: var(--muted);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 14px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.notice {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin-top: 14px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 12px 14px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: #fff8e6;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid #f5df9b;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 14px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>form {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: grid;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>gap: 16px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.card {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 20px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.question-head {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>gap: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>align-items: flex-start;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin-bottom: 14px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.q-number {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>min-width: 32px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>height: 32px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: inline-flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>justify-content: center;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 999px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: var(--accent-soft);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: var(--accent);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 700;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 14px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.q-text {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 17px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 600;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.scale-grid {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: grid;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>grid-template-columns: repeat(5, 1fr);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>gap: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.choice {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid var(--line);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 14px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 10px 8px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>text-align: center;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>transition: 0.15s ease;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: #fff;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.choice:hover {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-color: var(--accent);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: var(--accent-soft);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.choice input {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: none;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.choice.selected {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-color: var(--accent);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: var(--accent-soft);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>box-shadow: inset 0 0 0 1px var(--accent);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.choice-score {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: block;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 18px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 700;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin-bottom: 2px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.choice-label {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: block;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: var(--muted);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>line-height: 1.4;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.actions {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>position: sticky;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>bottom: 16px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>gap: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>justify-content: center;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin-top: 8px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>button {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border: none;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 999px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 14px 22px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 15px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 700;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>cursor: pointer;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>transition: 0.15s ease;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.primary {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: var(--accent);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: white;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.secondary {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: white;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: var(--text);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid var(--line);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>button:hover {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>transform: translateY(-1px);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>box-shadow: 0 10px 20px rgba(37, 99, 235, 0.12);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.result {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin-top: 22px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 24px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: var(--card);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid var(--line);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 18px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: none;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.result-grid {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: grid;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));</p>
+<p class="p1"><span class="Apple-converted-space">      </span>gap: 14px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin-top: 16px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.result-box {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 16px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 14px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid var(--line);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: #fbfcff;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.result-label {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 13px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: var(--muted);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin-bottom: 6px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.result-value {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 26px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-weight: 800;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>line-height: 1.2;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.subscale-list {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin-top: 18px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: grid;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>gap: 10px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.subscale-item {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 14px 16px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid var(--line);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: white;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>display: flex;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>justify-content: space-between;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>align-items: center;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>gap: 12px;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.comment {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin-top: 18px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>padding: 16px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border-radius: 14px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>background: #f0fdf4;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>border: 1px solid #bbf7d0;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>.footer-note {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>margin-top: 14px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>font-size: 13px;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>color: var(--muted);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>@media (max-width: 700px) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>h1 { font-size: 24px; }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>.scale-grid { grid-template-columns: 1fr; }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>.actions { flex-direction: column; }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>button { width: 100%; }</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/style&gt;</p>
+<p class="p1">&lt;/head&gt;</p>
+<p class="p1">&lt;body&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;div class="wrap"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;section class="hero"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;h1 id="formTitle"&gt;心理尺度 自動集計フォーム&lt;/h1&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;p id="formDescription"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>各項目について、現在の自分にもっとも近いものを選んでください。</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="notice" id="scaleInstruction"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;p class="muted"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>回答後に「結果を表示」を押すと、その場で自動集計されます。</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/p&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/section&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;form id="scaleForm"&gt;&lt;/form&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;div class="actions"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;button type="button" class="primary" id="submitBtn"&gt;結果を表示&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;button type="button" class="secondary" id="resetBtn"&gt;リセット&lt;/button&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;section class="result" id="resultSection"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;h2&gt;集計結果&lt;/h2&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="result-grid"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="result-box"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="result-label"&gt;合計点&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="result-value" id="totalScore"&gt;-&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;div class="result-box"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="result-label"&gt;平均点&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="result-value" id="averageScore"&gt;-&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="subscale-list" id="subscaleList"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="comment" id="resultComment"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>&lt;div class="footer-note" id="footerNote"&gt;&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/section&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/div&gt;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// =============================</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// ここを差し替えれば、別の心理尺度にも流用できます</p>
+<p class="p1"><span class="Apple-converted-space">    </span>// =============================</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const scaleConfig = {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>title: "心理尺度 自動集計フォーム",</p>
+<p class="p1"><span class="Apple-converted-space">      </span>description: "各項目を注意深く読み、あなたがどの程度そのように行動するかを選んでください。",</p>
+<p class="p1"><span class="Apple-converted-space">      </span>instruction: "回答する前に、それぞれの項目を注意深く読んでください。あなたが、各項目について、どの程度行動するか、以下の尺度に従って数字を選んでください。",</p>
+<p class="p1"><span class="Apple-converted-space">      </span>footerNote: "※この結果は自己理解の参考情報としてご利用ください。必要に応じて、専門家への相談もご検討ください。",</p>
+<p class="p1"><span class="Apple-converted-space">      </span>choices: [</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ value: 1, label: "ほとんど全く</p>
+<p class="p1">そうしない" },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ value: 2, label: "そうしない" },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ value: 3, label: "どちらとも</p>
+<p class="p1">いえない" },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ value: 4, label: "そうする" },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ value: 5, label: "ほとんどいつも</p>
+<p class="p1">そうする" }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>],</p>
+<p class="p1"><span class="Apple-converted-space">      </span>items: [</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ id: "q1", text: "自分自身の欠点や不十分なところについて、不満に思っているし、批判的である。", subscale: "自己批判", reverse: true },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ id: "q2", text: "気分が落ち込んだときには、間違ったことすべてについて、くよくよと心配し、こだわる傾向にある。", subscale: "過剰同一化", reverse: true },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ id: "q3", text: "自分にとって重要なことを失敗した時、無力感で頭がいっぱいになる。", subscale: "過剰同一化", reverse: true },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ id: "q4", text: "何かで苦しい想いをしたときは、感情を適度なバランスに保つようにする。", subscale: "マインドフルネス" },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ id: "q5", text: "自分自身にどこかに不十分なところがあると感じると、多くの人も不十分であるという気持ちを共有していることを思い出すようにする。", subscale: "共通の人間性" },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ id: "q6", text: "自分のパーソナリティの好きでないところについては、やさしくなれないし、いらだちを感じる。", subscale: "自己批判", reverse: true },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ id: "q7", text: "苦労を経験しているとき、必要とする程度に自分自身をいたわり、やさしくする。", subscale: "自分への優しさ" },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ id: "q8", text: "気分が落ち込んだとき、多くの人がおそらく自分より幸せであるという気持ちになりがちである。", subscale: "孤独感", reverse: true },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ id: "q9", text: "何か苦痛を感じることが起こったとき、その状況についてバランスのとれた見方をするようにする。", subscale: "マインドフルネス" },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ id: "q10", text: "自分の失敗は、人間のありようの1つであると考えるようにしている。", subscale: "共通の人間性" },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ id: "q11", text: "自分にとって大切な何かに失敗したとき、自分の失敗の中でひとりぼっちでいるように感じる傾向がある。", subscale: "孤独感", reverse: true },</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{ id: "q12", text: "自分のパーソナリティの好きではないところについては理解し、やさしい目で見るようにしている。", subscale: "自分への優しさ" }</p>
+<p class="p1"><span class="Apple-converted-space">      </span>],</p>
+<p class="p1"><span class="Apple-converted-space">      </span>interpretation: [</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{</p>
+<p class="p1"><span class="Apple-converted-space">          </span>min: 12,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>max: 24,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>label: "低め",</p>
+<p class="p1"><span class="Apple-converted-space">          </span>comment: "判定コメントは未設定です。あとで集計方法に合わせて差し替えます。"</p>
+<p class="p1"><span class="Apple-converted-space">        </span>},</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{</p>
+<p class="p1"><span class="Apple-converted-space">          </span>min: 25,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>max: 42,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>label: "中程度",</p>
+<p class="p1"><span class="Apple-converted-space">          </span>comment: "判定コメントは未設定です。あとで集計方法に合わせて差し替えます。"</p>
+<p class="p1"><span class="Apple-converted-space">        </span>},</p>
+<p class="p1"><span class="Apple-converted-space">        </span>{</p>
+<p class="p1"><span class="Apple-converted-space">          </span>min: 43,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>max: 60,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>label: "高め",</p>
+<p class="p1"><span class="Apple-converted-space">          </span>comment: "判定コメントは未設定です。あとで集計方法に合わせて差し替えます。"</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>]</p>
+<p class="p1"><span class="Apple-converted-space">    </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>const formEl = document.getElementById("scaleForm");</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const resultSection = document.getElementById("resultSection");</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const submitBtn = document.getElementById("submitBtn");</p>
+<p class="p1"><span class="Apple-converted-space">    </span>const resetBtn = document.getElementById("resetBtn");</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById("formTitle").textContent = scaleConfig.title;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById("formDescription").textContent = scaleConfig.description;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById("scaleInstruction").textContent = scaleConfig.instruction;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>document.getElementById("footerNote").textContent = scaleConfig.footerNote;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function renderForm() {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>formEl.innerHTML = "";</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>scaleConfig.items.forEach((item, index) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const card = document.createElement("section");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>card.className = "card";</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const head = document.createElement("div");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>head.className = "question-head";</p>
+<p class="p1"><span class="Apple-converted-space">        </span>head.innerHTML = `</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div class="q-number"&gt;${index + 1}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="q-text"&gt;${item.text}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;div class="muted"&gt;${item.subscale ? `下位尺度：${item.subscale}` : ""}${item.reverse ? "　/　逆転項目" : ""}&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>`;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>const grid = document.createElement("div");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>grid.className = "scale-grid";</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>scaleConfig.choices.forEach(choice =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>const label = document.createElement("label");</p>
+<p class="p1"><span class="Apple-converted-space">          </span>label.className = "choice";</p>
+<p class="p1"><span class="Apple-converted-space">          </span>label.innerHTML = `</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;input type="radio" name="${item.id}" value="${choice.value}"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="choice-score"&gt;${choice.value}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="choice-label"&gt;${choice.label.replace(/\n/g, "&lt;br&gt;")}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>`;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>const input = label.querySelector("input");</p>
+<p class="p1"><span class="Apple-converted-space">          </span>input.addEventListener("change", () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">            </span>document.querySelectorAll(`input[name="${item.id}"]`).forEach(r =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">              </span>r.closest(".choice").classList.remove("selected");</p>
+<p class="p1"><span class="Apple-converted-space">            </span>});</p>
+<p class="p1"><span class="Apple-converted-space">            </span>label.classList.add("selected");</p>
+<p class="p1"><span class="Apple-converted-space">          </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>grid.appendChild(label);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>card.appendChild(head);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>card.appendChild(grid);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>formEl.appendChild(card);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>});</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function getMaxChoiceValue() {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>return Math.max(...scaleConfig.choices.map(c =&gt; c.value));</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function collectAnswers() {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const answers = {};</p>
+<p class="p1"><span class="Apple-converted-space">      </span>let missing = [];</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>scaleConfig.items.forEach((item, index) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const checked = document.querySelector(`input[name="${item.id}"]:checked`);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (!checked) {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>missing.push(index + 1);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>} else {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>answers[item.id] = Number(checked.value);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>return { answers, missing };</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function scoreAnswers(rawAnswers) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const max = getMaxChoiceValue();</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const scoredItems = [];</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const subscaleScores = {};</p>
+<p class="p1"><span class="Apple-converted-space">      </span>let total = 0;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>scaleConfig.items.forEach(item =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const raw = rawAnswers[item.id];</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const scored = item.reverse ? (max + 1 - raw) : raw;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>scoredItems.push({</p>
+<p class="p1"><span class="Apple-converted-space">          </span>id: item.id,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>text: item.text,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>raw,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>scored,</p>
+<p class="p1"><span class="Apple-converted-space">          </span>subscale: item.subscale || "その他"</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>total += scored;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const key = item.subscale || "その他";</p>
+<p class="p1"><span class="Apple-converted-space">        </span>if (!subscaleScores[key]) {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>subscaleScores[key] = { total: 0, count: 0 };</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">        </span>subscaleScores[key].total += scored;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>subscaleScores[key].count += 1;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>return {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>total,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>average: total / scaleConfig.items.length,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>scoredItems,</p>
+<p class="p1"><span class="Apple-converted-space">        </span>subscaleScores</p>
+<p class="p1"><span class="Apple-converted-space">      </span>};</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function getInterpretation(total) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>return scaleConfig.interpretation.find(rule =&gt; total &gt;= rule.min &amp;&amp; total &lt;= rule.max)</p>
+<p class="p1"><span class="Apple-converted-space">        </span>|| { label: "判定なし", comment: "判定基準が設定されていません。" };</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>function renderResult(result) {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById("totalScore").textContent = `${result.total}点`;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById("averageScore").textContent = result.average.toFixed(2);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const subscaleList = document.getElementById("subscaleList");</p>
+<p class="p1"><span class="Apple-converted-space">      </span>subscaleList.innerHTML = "";</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const descriptions = {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>"自分への優しさ": "自分の良い所やできている部分に注目し、やさしい言葉をかける。",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>"自己批判": "自分の駄目な所に注目し、批判的な言葉をかける。",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>"マインドフルネス": "自分の感情を偏りなく受け入れ、バランスのとれた見方をする。",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>"過剰同一化": "否定的な感情に支配され、頭の中が混乱してしまう。",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>"共通の人間性": "他の人も自分と同じような困難を経験し、そこから立ち直っていることを認識する。",</p>
+<p class="p1"><span class="Apple-converted-space">        </span>"孤独感": "自分だけ困難に直面して苦しみ、孤立していると感じる。"</p>
+<p class="p1"><span class="Apple-converted-space">      </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>Object.entries(result.subscaleScores).forEach(([name, value]) =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>const item = document.createElement("div");</p>
+<p class="p1"><span class="Apple-converted-space">        </span>item.className = "subscale-item";</p>
+<p class="p1"><span class="Apple-converted-space">        </span>item.innerHTML = `</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;strong&gt;${name}&lt;/strong&gt;&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;span class="muted"&gt;${descriptions[name] || ""}&lt;/span&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;div style="text-align:right;"&gt;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>&lt;strong&gt;${value.total}点&lt;/strong&gt;</p>
+<p class="p1"><span class="Apple-converted-space">          </span>&lt;/div&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>`;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>subscaleList.appendChild(item);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>document.getElementById("resultComment").innerHTML = `</p>
+<p class="p1"><span class="Apple-converted-space">        </span>&lt;strong&gt;セルフ・コンパッション：&lt;/strong&gt;${result.total}点&lt;br&gt;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>失敗や傷ついた経験の後に、自分の感情をバランスよく受け入れ、その経験が他の人たちとも共通していることを認識し、自分に優しい気持ちを向ける傾向を示します。</p>
+<p class="p1"><span class="Apple-converted-space">      </span>`;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>resultSection.style.display = "block";</p>
+<p class="p1"><span class="Apple-converted-space">      </span>resultSection.scrollIntoView({ behavior: "smooth", block: "start" });</p>
+<p class="p1"><span class="Apple-converted-space">    </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>submitBtn.addEventListener("click", () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>const { answers, missing } = collectAnswers();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>if (missing.length &gt; 0) {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>alert(`未回答の項目があります。\n未回答: ${missing.join(", ")}番`);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>const result = scoreAnswers(answers);</p>
+<p class="p1"><span class="Apple-converted-space">      </span>renderResult(result);</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>resetBtn.addEventListener("click", () =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">      </span>document.querySelectorAll('input[type="radio"]').forEach(input =&gt; {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>input.checked = false;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>});</p>
+<p class="p1"><span class="Apple-converted-space">      </span>document.querySelectorAll('.choice').forEach(el =&gt; el.classList.remove('selected'));</p>
+<p class="p1"><span class="Apple-converted-space">      </span>resultSection.style.display = 'none';</p>
+<p class="p1"><span class="Apple-converted-space">      </span>window.scrollTo({ top: 0, behavior: 'smooth' });</p>
+<p class="p1"><span class="Apple-converted-space">    </span>});</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">    </span>renderForm();</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/script&gt;</p>
+<p class="p1">&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
 </body>
 </html>
