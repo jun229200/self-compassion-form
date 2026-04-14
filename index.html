@@ -1,65 +1,193 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>心理尺度 自動集計フォーム</title>
-  <style>
-    :root {
-      --bg: #f6f7fb;
-      --card: #ffffff;
-      --text: #1f2937;
-      --muted: #6b7280;
-      --line: #dbe2ea;
-      --accent: #2563eb;
-      --accent-soft: #eff6ff;
-      --ok: #047857;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>セルフ・コンパッション尺度フォーム</title>
 
-    * { box-sizing: border-box; }
+<style>
+body{
+  font-family:sans-serif;
+  background:#f5f7fb;
+  margin:0;
+  padding:20px;
+  color:#222;
+}
+.container{
+  max-width:900px;
+  margin:auto;
+}
+.card{
+  background:white;
+  border-radius:16px;
+  padding:24px;
+  margin-bottom:20px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+h1{
+  font-size:32px;
+}
+.question{
+  margin-bottom:20px;
+  padding:18px;
+  border:1px solid #ddd;
+  border-radius:12px;
+}
+.question-title{
+  font-weight:bold;
+  margin-bottom:12px;
+}
+.choices{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+.choice{
+  border:1px solid #ccc;
+  border-radius:10px;
+  padding:10px;
+  cursor:pointer;
+}
+.choice input{
+  margin-right:6px;
+}
+button{
+  padding:14px 24px;
+  font-size:16px;
+  border:none;
+  border-radius:999px;
+  cursor:pointer;
+  margin-right:10px;
+}
+.primary{
+  background:#2563eb;
+  color:white;
+}
+.secondary{
+  background:white;
+  border:1px solid #ccc;
+}
+.result{
+  display:none;
+}
+.subscale{
+  margin-top:12px;
+  padding:12px;
+  border:1px solid #ddd;
+  border-radius:10px;
+}
+</style>
+</head>
 
-    body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Yu Gothic", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.7;
-    }
+<body>
 
-    .wrap {
-      max-width: 920px;
-      margin: 0 auto;
-      padding: 32px 16px 80px;
-    }
+<div class="container">
 
-    .hero, .card {
-      background: var(--card);
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
-    }
+<div class="card">
+<h1>セルフ・コンパッション尺度フォーム</h1>
 
-    .hero {
-      padding: 28px;
-      margin-bottom: 20px;
-    }
+<p>
+回答する前に、それぞれの項目を注意深く読んでください。<br>
+あなたが各項目についてどの程度行動するか選んでください。
+</p>
 
-    h1 {
-      margin: 0 0 10px;
-      font-size: 30px;
-      line-height: 1.3;
-    }
+<p>
+1 ほとんど全くそうしない / 2 そうしない / 3 どちらともいえない / 4 そうする / 5 ほとんどいつもそうする
+</p>
+</div>
 
-    h2 {
-      margin: 0 0 10px;
-      font-size: 22px;
-    }
+<form id="form"></form>
 
-    .muted {
-      color: var(--muted);
-      font-size: 14px;
-    }
+<div style="text-align:center;margin:20px 0;">
+<button class="primary" type="button" onclick="calculate()">結果を表示</button>
+<button class="secondary" type="button" onclick="resetForm()">リセット</button>
+</div>
 
+<div class="card result" id="result">
+<h2>集計結果</h2>
+<p id="total"></p>
+<div id="subscales"></div>
+</div>
+
+</div>
+
+<script>
+
+const questions = [
+"自分自身の欠点や不十分なところについて，不満に思っているし，批判的である。",
+"気分が落ち込んだときには，間違ったことすべてについて，くよくよと心配し，こだわる傾向にある。",
+"自分にとって重要なことを失敗した時，無力感で頭がいっぱいになる。",
+"何かで苦しい想いをしたときは，感情を適度なバランスに保つようにする。",
+"自分自身にどこかに不十分なところがあると感じると，多くの人も不十分であるという気持ちを共有していることを思い出すようにする。",
+"自分のパーソナリティの好きでないところについては，やさしくなれないし，いらだちを感じる。",
+"苦労を経験しているとき，必要とする程度に自分自身をいたわり，やさしくする。",
+"気分が落ち込んだとき，多くの人がおそらく自分より幸せであるという気持ちになりがちである。",
+"何か苦痛を感じることが起こったとき，その状況についてバランスのとれた見方をするようにする。",
+"自分の失敗は，人間のありようの１つであると考えるようにしている。",
+"自分にとって大切な何かに失敗したとき，自分の失敗の中でひとりぼっちでいるように感じる傾向がある。",
+"自分のパーソナリティの好きではないところについては理解し，やさしい目で見るようにしている。"
+];
+
+const form=document.getElementById("form");
+
+questions.forEach((q,i)=>{
+  let div=document.createElement("div");
+  div.className="card question";
+
+  let html=`<div class="question-title">${i+1}. ${q}</div><div class="choices">`;
+
+  for(let n=1;n<=5;n++){
+    html+=`<label class="choice"><input type="radio" name="q${i+1}" value="${n}">${n}</label>`;
+  }
+
+  html+=`</div>`;
+  div.innerHTML=html;
+  form.appendChild(div);
+});
+
+function calculate(){
+
+let values=[];
+
+for(let i=1;i<=12;i++){
+  let checked=document.querySelector(`input[name=q${i}]:checked`);
+  if(!checked){
+    alert(i+"番が未回答です");
+    return;
+  }
+  values.push(Number(checked.value));
+}
+
+let total=
+values[3]+values[4]+values[6]+values[8]+values[9]+values[11]
++
+(36-(values[0]+values[1]+values[2]+values[5]+values[7]+values[10]));
+
+document.getElementById("total").innerHTML=`セルフ・コンパッション総得点： <strong>${total}点</strong>`;
+
+let subs=`
+<div class="subscale">自分への優しさ：${values[6]+values[11]}点</div>
+<div class="subscale">自己批判：${values[0]+values[5]}点</div>
+<div class="subscale">マインドフルネス：${values[3]+values[8]}点</div>
+<div class="subscale">過剰同一化：${values[1]+values[2]}点</div>
+<div class="subscale">共通の人間性：${values[4]+values[9]}点</div>
+<div class="subscale">孤独感：${values[7]+values[10]}点</div>
+`;
+
+document.getElementById("subscales").innerHTML=subs;
+document.getElementById("result").style.display="block";
+window.scrollTo({top:document.body.scrollHeight,behavior:"smooth"});
+}
+
+function resetForm(){
+document.querySelectorAll("input").forEach(i=>i.checked=false);
+document.getElementById("result").style.display="none";
+}
+
+</script>
+
+</body>
+</html>
     .notice {
       margin-top: 14px;
       padding: 12px 14px;
